@@ -50,7 +50,7 @@ public class Receiver {
         // send message to processor
         boolean status = processor.addMessage(msg);
         if(status){
-            return Response.ok(msg.getTimePlaced()).type(MediaType.TEXT_PLAIN).build();
+            return Response.ok().type(MediaType.TEXT_PLAIN).build();
         }else {
             return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
         }
