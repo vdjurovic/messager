@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Message info</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+        <script src="http://code.highcharts.com/highcharts.js"></script>
+        <script>
+            var curPairs = new Array();
+            var txTotal = new Array();
+            var curSold = new Array();
+            var curSoldAmount = new Array()
+            var curBought = new Array();
+            var curBoughtAmount = new Array();
+            function getReport(){
+                $.getJSON("/p/report",function(data){
+                     var transactionCount = data.transactionCount;
+                     var sold = data.totalSold;
+                     var bought = data.totalBought;
+                    populateTables(transactionCount, sold, bought);
+                    createCharts()
+                   
+                })
+            }
+            
+            
+            function populateTables(transactions, sold, bought){
+                 $("#txTable > tbody").html("");
+                 for(i = 0;i < transactions.entry.length;i++){
+                       var td1 = document.createElement("td");
+                        td1.innerHTML = transactions.entry[i].key;
+                        var td2 = document.createElement("td");
+                        td2.innerHTML = transactions.entry[i].value;
+
+                        $('#txTableContent').append($('<tr>'), td1, td2);
+                        curPairs[i] = transactions.entry[i].key;
+                        txTotal[i] = transactions.entry[i].value;
+                    }
+                  // clear all rows in table
+                  $("#totalSoldTable > tbody").html("");
+                  for(k = 0;k < sold.entry.length;k++){
+                      var td1 = document.createElement("td");
+                      td1.innerHTML = sold.entry[k].key;
+                      var td2 = document.createElement("td");
+                      td2.innerHTML = sold.entry[k].value;
+                      
+                      $('#totalSoldContent').append($('<tr>'), td1, td2);
+                      curSold[k] = sold.entry[k].key;
+                      curSoldAmount[k] = sold.entry[k].value;
+                   }
+                   // clear all rows in table
+                  $("#totalBoughtTable > tbody").html("");
+                  for(k = 0;k < bought.entry.length;k++){
+                      var td1 = document.createElement("td");
+                      td1.innerHTML = bought.entry[k].key;
+                      var td2 = document.createElement("td");
+                      td2.innerHTML = bought.entry[k].value;
+                      
+                      $('#totalBoughtContent').append($('<tr>'), td1, td2);
+                      curBought[k] = bought.entry[k].key;
+                      curBoughtAmount[k] = bought.entry[k].value;
+                  }
+                }
+                
+                function createCharts(){
+                    // total transactions chart
+                             $('#container').highcharts({
+                            chart: {
+                                type: 'bar'
+                            },
+                            title: {
+                                text: 'Total transactions per currency pair'
+                            },
+                            xAxis: {
+                                categories: curPairs
+                            },
+                            yAxis: {
+                                title: {
+                                    text: 'Number od transactions'
+                                }
+                            },
+                            series: [{
+                                    name: 'Currency Pair',
+                                    data: txTotal
+                                }]
+                        });
+                        // sold chart
+                        $('#container1').highcharts({
+                            chart: {
+                                type: 'column'
+                            },
+                            title: {
+                                text: 'Total sold ammount per currency'
+                            },
+                            xAxis: {
+                                categories: curSold
+                            },
+                            yAxis: {
+                                title: {
+                                    text: 'Total Amount'
+                                }
+                            },
+                            series: [{
+                                    name: 'Currency',
+                                    data: curSoldAmount
+                                }]
+                        });
+                        $('#container2').highcharts({
+                            chart: {
+                                type: 'column'
+                            },
+                            title: {
+                                text: 'Total Bought ammount per currency'
+                            },
+                            xAxis: {
+                                categories: curBought
+                            },
+                            yAxis: {
+                                title: {
+                                    text: 'Total amounts'
+                                }
+                            },
+                            series: [{
+                                    name: 'Currency',
+                                    data: curBoughtAmount
+                                }]
+                        });
+                    }
+        </script>
+        <style>
+            table {
+                border-collapse: collapse;
+            }
+            table, th, td {
+                border: 1px solid black;
+                text-align: center;
+                padding: 10px;
+            }
+           
+            th {
+                background-color: lightskyblue;
+                color: white;
+            }
+        </style>
+    </head>
+    <body onload="getReport()">
+        <div id="tablegrid" style="vertical-align: top;">
+            <div id="txCount" style="display: inline-block;">
+                <table id="txTable">
+                    <thead>
+                        <tr>
+                            <th>Currency pair</th>
+                            <th>Total transactions count</th>
+                        </tr>
+                    </thead>
+                    <tbody id="txTableContent">
+                        
+                    </tbody>
+                </table>
+            </div>
+            <div id="salesDiv" style="display: inline-block;vertical-align: top;">
+                <table id="totalSoldTable">
+                    <thead>
+                        <tr>
+                            <th>Currency</th>
+                            <th>Total sold</th>
+                        </tr>
+                    </thead>
+                    <tbody id="totalSoldContent">
+                        
+                    </tbody>
+                </table>
+            </div>
+            <div id="buysDiv" style="display: inline-block;vertical-align: top;">
+                <table id="totalBoughtTable">
+                    <thead>
+                        <tr>
+                            <th>Currency</th>
+                            <th>Total Bought</th>
+                        </tr>
+                    </thead>
+                    <tbody id="totalBoughtContent">
+                        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id="container" style="display: inline-block;"></div>
+        <div id="container1" style="display: inline-block;"></div>
+        <div id="container2" style="display: inline-block;"></div>
+        <div><input type="button" value="Refresh" onclick="getReport();" /></div>
+    </body>
+</html>
